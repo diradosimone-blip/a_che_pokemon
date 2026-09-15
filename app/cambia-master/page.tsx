@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
@@ -10,7 +10,7 @@ type Giocatore = {
   is_master: boolean;
 };
 
-export default function CambiaMaster() {
+function CambiaMasterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -216,8 +216,6 @@ export default function CambiaMaster() {
 
     if (resetError) {
       console.error("Errore reset is_master:", resetError);
-      // Non blocchiamo il cambio:
-      // rooms.master_player_id è la fonte di verità.
     }
 
     const { error: nuovoMasterError } = await supabase
@@ -233,20 +231,17 @@ export default function CambiaMaster() {
         "Errore sincronizzazione nuovo Master:",
         nuovoMasterError
       );
-      // Anche in questo caso non blocchiamo il cambio.
     }
 
     // ==========================================
-    // 7. PORTIAMO IL NUOVO MASTER ALLA SELEZIONE
+    // 7. PORTIAMO IL NUOVO MASTER AL RISULTATO
     // ==========================================
 
     router.push(
-  `/risultato?codice=${encodeURIComponent(
-    codiceStanza.toUpperCase()
-  )}&nome=${encodeURIComponent(
-    nomeGiocatore || ""
-  )}`
-);
+      `/risultato?codice=${encodeURIComponent(
+        codiceStanza.toUpperCase()
+      )}&nome=${encodeURIComponent(nomeGiocatore || "")}`
+    );
   }
 
   // ==========================================
@@ -386,5 +381,21 @@ export default function CambiaMaster() {
 
       </div>
     </main>
+  );
+}
+
+export default function CambiaMaster() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+          <p className="text-zinc-400">
+            Caricamento...
+          </p>
+        </main>
+      }
+    >
+      <CambiaMasterContent />
+    </Suspense>
   );
 }

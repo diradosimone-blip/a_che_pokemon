@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
@@ -17,7 +17,7 @@ type Room = {
   master_mode?: string;
 };
 
-export default function Lobby() {
+function LobbyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -1222,5 +1222,21 @@ export default function Lobby() {
 
       </div>
     </main>
+  );
+}
+
+export default function Lobby() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+          <p className="text-zinc-400">
+            Caricamento...
+          </p>
+        </main>
+      }
+    >
+      <LobbyContent />
+    </Suspense>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
-export default function ConfiguraPartita() {
+function ConfiguraPartitaContent() {
   const [nome, setNome] = useState("");
 
   const searchParams = useSearchParams();
@@ -251,5 +251,21 @@ export default function ConfiguraPartita() {
 
       </div>
     </main>
+  );
+}
+
+export default function ConfiguraPartita() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+          <p className="text-zinc-400">
+            Caricamento...
+          </p>
+        </main>
+      }
+    >
+      <ConfiguraPartitaContent />
+    </Suspense>
   );
 }

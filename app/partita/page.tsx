@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 type Player = {
@@ -30,7 +38,7 @@ type PokemonData = {
   };
 };
 
-export default function Partita() {
+function PartitaContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -992,5 +1000,28 @@ export default function Partita() {
 
       </div>
     </main>
+  );
+}
+
+export default function Partita() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 sm:py-10">
+          <div className="mx-auto flex min-h-[60vh] max-w-4xl items-center justify-center">
+            <div className="text-center">
+              <div className="mb-4 text-4xl">
+                🎮
+              </div>
+              <p className="text-zinc-400">
+                Caricamento partita...
+              </p>
+            </div>
+          </div>
+        </main>
+      }
+    >
+      <PartitaContent />
+    </Suspense>
   );
 }

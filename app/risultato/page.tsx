@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
@@ -33,7 +33,7 @@ function codiceStanzaSeguro(codice: string | null) {
   return codice ? codice.toUpperCase() : "";
 }
 
-export default function Risultato() {
+function RisultatoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -561,10 +561,12 @@ export default function Risultato() {
     // che ha effettuato l'estrazione.
     // ==========================================
 
-    if (nuovoMaster.id ===
-        players.find(
-          (player) => player.name === nomeGiocatore
-        )?.id) {
+    if (
+      nuovoMaster.id ===
+      players.find(
+        (player) => player.name === nomeGiocatore
+      )?.id
+    ) {
       router.push(
         `/scegli-pokemon?codice=${encodeURIComponent(
           codice
@@ -745,5 +747,21 @@ export default function Risultato() {
 
       </div>
     </main>
+  );
+}
+
+export default function Risultato() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+          <p className="text-zinc-400">
+            Caricamento risultato...
+          </p>
+        </main>
+      }
+    >
+      <RisultatoContent />
+    </Suspense>
   );
 }

@@ -1,7 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+
 import { supabase } from "../lib/supabase";
 
 type PokemonSpecies = {
@@ -14,13 +24,18 @@ type Pokemon = {
   name: string;
 };
 
-export default function ScegliPokemon() {
+function ScegliPokemonContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const masterMode = searchParams.get("master") ?? "chosen";
-  const codiceStanza = searchParams.get("codice") ?? "";
-  const nomeGiocatore = searchParams.get("nome") ?? "";
+  const masterMode =
+    searchParams.get("master") ?? "chosen";
+
+  const codiceStanza =
+    searchParams.get("codice") ?? "";
+
+  const nomeGiocatore =
+    searchParams.get("nome") ?? "";
 
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [ricerca, setRicerca] = useState("");
@@ -145,17 +160,19 @@ export default function ScegliPokemon() {
         // RECUPERIAMO LA STANZA
         // ============================
 
-        const { data: room, error: roomError } =
-          await supabase
-            .from("rooms")
-            .select(
-              "id, master_player_id, master_mode, status"
-            )
-            .eq(
-              "code",
-              codiceStanza.toUpperCase()
-            )
-            .maybeSingle();
+        const {
+          data: room,
+          error: roomError,
+        } = await supabase
+          .from("rooms")
+          .select(
+            "id, master_player_id, master_mode, status"
+          )
+          .eq(
+            "code",
+            codiceStanza.toUpperCase()
+          )
+          .maybeSingle();
 
         if (roomError || !room) {
           console.error(roomError);
@@ -530,7 +547,6 @@ export default function ScegliPokemon() {
             <div className="flex flex-col sm:flex-row items-center gap-4">
 
               <div className="flex items-center gap-3 min-w-0 flex-1 w-full">
-
                 <div className="w-16 h-16 shrink-0 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                   <img
                     src={immaginePokemon(
@@ -550,7 +566,6 @@ export default function ScegliPokemon() {
                     {selezionato.name}
                   </p>
                 </div>
-
               </div>
 
               <button
@@ -571,5 +586,33 @@ export default function ScegliPokemon() {
 
       </div>
     </main>
+  );
+}
+
+export default function ScegliPokemon() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center px-6">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-blue-500/10 border border-blue-500/20 mb-6">
+              <span className="text-4xl animate-pulse">
+                🎯
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              Caricamento...
+            </h1>
+
+            <div className="mt-6 flex justify-center">
+              <div className="w-8 h-8 border-2 border-zinc-700 border-t-blue-500 rounded-full animate-spin" />
+            </div>
+          </div>
+        </main>
+      }
+    >
+      <ScegliPokemonContent />
+    </Suspense>
   );
 }
