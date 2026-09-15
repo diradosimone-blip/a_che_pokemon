@@ -1,0 +1,2 @@
+cd "D:\a_che_pokemon"
+npm run dev
